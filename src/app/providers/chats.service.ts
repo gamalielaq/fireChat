@@ -4,17 +4,50 @@ import { Observable } from 'rxjs';
 import { Mensaje } from '../interface/mensaje.interface';
 import { map } from 'rxjs/operators';
 
+import { AngularFireAuth } from '@angular/fire/auth';
+import firebase from 'firebase/app';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ChatsService {
   private itemsCollection: AngularFirestoreCollection<Mensaje>;
   public chats: Mensaje[] = [];
+  public usuario: any= {};
 
   constructor(
-    private afs : AngularFirestore
+    private afs : AngularFirestore,
+    public auth: AngularFireAuth
   ) {
+    this.auth.authState.subscribe( user => {
+        console.log( 'Estado del usuario: ',  user );
 
+        if(!user) {
+          return;
+        }
+
+        this.usuario.nombre = user.displayName; 
+        this.usuario.uid = user.uid; 
+
+
+        console.log(this.usuario);
+        
+        
+    });
+  }
+
+  login(proveedor :string) {
+
+    if(proveedor === 'google') {
+      this.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    }else {
+      this.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
+    }
+    
+  }
+  logout() {
+    this.usuario = {};
+    this.auth.signOut();
   }
 
   cargarMensajes() {
@@ -41,9 +74,10 @@ export class ChatsService {
     // todo Falta el uid del usuario
 
     let mensaje:Mensaje = {
-      nombre: 'Fernando Demo',
+      nombre: this.usuario.nombre,
       mensaje: texto,
-      fecha: new Date().getTime()
+      fecha: new Date().getTime(),
+      uid: this.usuario.uid
     }
     return this.itemsCollection.add( mensaje )
   }

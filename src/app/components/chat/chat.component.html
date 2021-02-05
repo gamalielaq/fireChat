@@ -1,10 +1,11 @@
 <h1>Chat</h1>
 <hr>
 <div class="app-mensajes" id="app-mensajes">
-    <div class="d-flex align-items-end flex-column"
-        *ngFor="let chat of _cs.chats"
-    >
-        <span class="badge bg-primary flex-end">Fernando</span>
+    
+    <div class="d-flex flex-column align-items-start" *ngFor="let chat of _cs.chats" [ngClass]="{'align-items-end': _cs.usuario.uid == chat.uid}">
+        <span class="badge flex-end" 
+        [ngClass]="{'bg-primary': _cs.usuario.uid == chat.uid, 'bg-success': _cs.usuario.uid != chat.uid}"
+        >{{chat.nombre}}</span>
         <p> {{chat.mensaje}}</p>
     </div>
     
